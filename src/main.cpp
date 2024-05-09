@@ -121,7 +121,7 @@ void onRender(void* thisptr, SCallbackInfo& info, std::any args) {
                 if (const auto curWindow = g_pInputManager->currentlyDraggedWindow.lock()) {
                     if (widget->isActive()) {
                         g_oAlpha = curWindow->m_fActiveInactiveAlpha.goal();
-                        curWindow->m_fActiveInactiveAlpha.setValueAndWarp(0); // HACK: hide dragged window for the actual pass
+                        curWindow->m_fActiveInactiveAlpha.setValueAndWarp(1); // 1 = don't hide the window!
                     }
                 }
                 else g_oAlpha = -1;
