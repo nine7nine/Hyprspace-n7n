@@ -47,23 +47,6 @@ void CHyprspaceWidget::show() {
         }
     }
 
-    // hide top and overlay layers
-    // FIXME: ensure input is disabled for hidden layers
-    if (oLayerAlpha.empty() && Config::hideRealLayers) {
-        for (auto& ls : owner->m_aLayerSurfaceLayers[2]) {
-            //ls->startAnimation(false);
-            oLayerAlpha.emplace_back(std::make_tuple(ls, ls->alpha.goal()));
-            ls->alpha = 0.f;
-            ls->fadingOut = true;
-        }
-        for (auto& ls : owner->m_aLayerSurfaceLayers[3]) {
-            //ls->startAnimation(false);
-            oLayerAlpha.emplace_back(std::make_tuple(ls, ls->alpha.goal()));
-            ls->alpha = 0.f;
-            ls->fadingOut = true;
-        }
-    }
-
     active = true;
 
     // panel offset should be handled by swipe event when swiping
@@ -81,27 +64,6 @@ void CHyprspaceWidget::hide() {
     auto owner = getOwner();
     if (!owner) return;
 
-    // restore layer state
-    for (auto& ls : owner->m_aLayerSurfaceLayers[2]) {
-        if (!ls->readyToDelete && ls->mapped && ls->fadingOut) {
-            auto oAlpha = std::find_if(oLayerAlpha.begin(), oLayerAlpha.end(), [&] (const auto& tuple) {return std::get<0>(tuple) == ls;});
-            if (oAlpha != oLayerAlpha.end()) {
-                ls->fadingOut = false;
-                ls->alpha = std::get<1>(*oAlpha);
-            }
-            //ls->startAnimation(true);
-        }
-    }
-    for (auto& ls : owner->m_aLayerSurfaceLayers[3]) {
-        if (!ls->readyToDelete && ls->mapped && ls->fadingOut) {
-            auto oAlpha = std::find_if(oLayerAlpha.begin(), oLayerAlpha.end(), [&] (const auto& tuple) {return std::get<0>(tuple) == ls;});
-            if (oAlpha != oLayerAlpha.end()) {
-                ls->fadingOut = false;
-                ls->alpha = std::get<1>(*oAlpha);
-            }
-            //ls->startAnimation(true);
-        }
-    }
     oLayerAlpha.clear();
 
     // restore fullscreen state

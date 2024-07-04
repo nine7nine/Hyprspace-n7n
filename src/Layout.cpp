@@ -6,7 +6,7 @@ void CHyprspaceWidget::updateLayout() {
 
     if (!Config::affectStrut) return;
 
-    const auto currentHeight = Config::panelHeight + Config::reservedArea;
+    const auto currentHeight = Config::reservedArea;
     const auto pMonitor = getOwner();
 
     // reset reserved areas

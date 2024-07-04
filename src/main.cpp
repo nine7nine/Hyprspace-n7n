@@ -104,19 +104,19 @@ void onRender(void* thisptr, SCallbackInfo& info, std::any args) {
     const auto renderStage = std::any_cast<eRenderStage>(args);
 
     // refresh layout after scheduled recalculation on monitors were carried out in renderMonitor
-    if (renderStage == eRenderStage::RENDER_PRE) {
+    if (renderStage == eRenderStage::RENDER_POST) {
         if (g_layoutNeedsRefresh) {
             refreshWidgets();
             g_layoutNeedsRefresh = false;
         }
     }
-    else if (renderStage == eRenderStage::RENDER_PRE_WINDOWS) {
+    else if (renderStage == eRenderStage::RENDER_POST_WINDOWS) {
 
 
         const auto widget = getWidgetForMonitor(g_pHyprOpenGL->m_RenderData.pMonitor);
         if (widget != nullptr)
             if (widget->getOwner()) {
-                //widget->draw();
+                widget->draw();
                 if (const auto curWindow = g_pInputManager->currentlyDraggedWindow.lock()) {
                     if (widget->isActive()) {
                         g_oAlpha = curWindow->m_fActiveInactiveAlpha.goal();
@@ -127,26 +127,6 @@ void onRender(void* thisptr, SCallbackInfo& info, std::any args) {
             }
             else g_oAlpha = -1;
         else g_oAlpha = -1;
-
-    }
-    else if (renderStage == eRenderStage::RENDER_POST_WINDOWS) {
-
-        const auto widget = getWidgetForMonitor(g_pHyprOpenGL->m_RenderData.pMonitor);
-
-        if (widget != nullptr)
-            if (widget->getOwner()) {
-                widget->draw();
-                if (g_oAlpha != -1) {
-                    if (const auto curWindow = g_pInputManager->currentlyDraggedWindow.lock()) {
-                        curWindow->m_fActiveInactiveAlpha.setValueAndWarp(Config::dragAlpha);
-                        timespec time;
-                        clock_gettime(CLOCK_MONOTONIC, &time);
-                        (*(tRenderWindow)pRenderWindow)(g_pHyprRenderer.get(), curWindow, widget->getOwner(), &time, true, RENDER_PASS_MAIN, false, false);
-                        curWindow->m_fActiveInactiveAlpha.setValueAndWarp(g_oAlpha);
-                    }
-                }
-                g_oAlpha = -1;
-            }
 
     }
 }
