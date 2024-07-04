@@ -113,8 +113,15 @@ void CHyprspaceWidget::draw() {
 
     // Panel Border
      if (Config::panelBorderWidth > 0) {
-        // Border box
-        CBox borderBox = {widgetBox.x, owner->vecPosition.y + (Config::onBottom * owner->vecTransformedSize.y) + (Config::panelHeight + Config::reservedArea - curYOffset.value()* owner->scale) * bottomInvert, owner->vecTransformedSize.x, Config::panelBorderWidth};
+    // Border box
+    CBox borderBox = {
+        widgetBox.x, 
+        owner->vecPosition.y + 
+        (Config::onBottom * owner->vecTransformedSize.y) + 
+        (Config::panelHeight + Config::reservedArea - curYOffset.value() * owner->scale) * bottomInvert, 
+        owner->vecTransformedSize.x, 
+        static_cast<double>(Config::panelBorderWidth)
+    };
         borderBox.y -= owner->vecPosition.y;
         
         g_pHyprOpenGL->renderRect(&borderBox, Config::panelBorderColor);
