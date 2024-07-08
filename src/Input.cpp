@@ -1,7 +1,7 @@
 #include "Overview.hpp"
 #include "Globals.hpp"
 
-bool CHyprspaceWidget::buttonEvent(bool pressed, Vector2D coords) {
+bool CHyprspaceWidget::buttonEvent(bool pressed) {
     bool Return;
 
     const auto targetWindow = g_pInputManager->currentlyDraggedWindow.lock();
@@ -20,7 +20,7 @@ bool CHyprspaceWidget::buttonEvent(bool pressed, Vector2D coords) {
     for (auto& w : workspaceBoxes) {
         auto wi = std::get<0>(w);
         auto wb = std::get<1>(w);
-        if (wb.containsPoint(coords * getOwner()->scale)) {
+        if (wb.containsPoint(g_pInputManager->getMouseCoordsInternal() * getOwner()->scale)) {
             targetWorkspaceID = wi;
             break;
         }
@@ -75,14 +75,14 @@ bool CHyprspaceWidget::buttonEvent(bool pressed, Vector2D coords) {
     return Return;
 }
 
-bool CHyprspaceWidget::axisEvent(double delta, Vector2D coords) {
+bool CHyprspaceWidget::axisEvent(double delta) {
 
     const auto owner = getOwner();
-    CBox widgetBox = {owner->vecPosition.x, owner->vecPosition.y - curYOffset.value(), owner->vecTransformedSize.x, (Config::panelHeight + Config::reservedArea) * owner->scale};
+    CBox widgetBox = {getOwner()->vecPosition.x, getOwner()->vecPosition.y - curYOffset.value(), getOwner()->vecTransformedSize.x, (Config::panelHeight + Config::reservedArea) * getOwner()->scale};
     if (Config::onBottom) widgetBox = {owner->vecPosition.x, owner->vecPosition.y + owner->vecTransformedSize.y - ((Config::panelHeight + Config::reservedArea) * owner->scale) + curYOffset.value(), owner->vecTransformedSize.x, (Config::panelHeight + Config::reservedArea) * owner->scale};
 
     // scroll through panel if cursor is on it
-    if (widgetBox.containsPoint(coords * getOwner()->scale)) {
+    if (widgetBox.containsPoint(g_pInputManager->getMouseCoordsInternal() * getOwner()->scale)) {
         workspaceScrollOffset = workspaceScrollOffset.goal() - delta * 2;
     }
     // otherwise, scroll to switch active workspace

@@ -158,7 +158,7 @@ void onMouseButton(void* thisptr, SCallbackInfo& info, std::any args) {
         const auto widget = getWidgetForMonitor(pMonitor);
         if (widget) {
             if (widget->isActive()) {
-                info.cancelled = !widget->buttonEvent(pressed, g_pInputManager->getMouseCoordsInternal());
+                info.cancelled = !widget->buttonEvent(pressed);
             }
         }
     }
@@ -176,7 +176,7 @@ void onMouseAxis(void* thisptr, SCallbackInfo& info, std::any args) {
         if (widget) {
             if (widget->isActive()) {
                 if (e.source == WL_POINTER_AXIS_SOURCE_WHEEL)
-                    info.cancelled = !widget->axisEvent(e.delta, g_pInputManager->getMouseCoordsInternal());
+                    info.cancelled = !widget->axisEvent(e.delta);
             }
         }
     }
@@ -241,24 +241,6 @@ void onKeyPress(void* thisptr, SCallbackInfo& info, std::any args) {
                 info.cancelled = true;
             }
     }
-}
-
-void onTouchDown(void* thisptr, SCallbackInfo& info, std::any args) {
-    const auto e = std::any_cast<wlr_touch_down_event*>(args);
-    const auto targetMonitor = g_pCompositor->getMonitorFromName(e->touch->output_name ? e->touch->output_name : "");
-    const auto widget = getWidgetForMonitor(targetMonitor);
-    if (widget != nullptr && targetMonitor != nullptr)
-        if (widget->isActive())
-            info.cancelled = !widget->buttonEvent(true, { targetMonitor->vecPosition.x + e->x * targetMonitor->vecSize.x, targetMonitor->vecPosition.y + e->y * targetMonitor->vecSize.y });
-}
-
-void onTouchUp(void* thisptr, SCallbackInfo& info, std::any args) {
-    const auto e = std::any_cast<wlr_touch_up_event*>(args);
-    const auto targetMonitor = g_pCompositor->getMonitorFromName(e->touch->output_name ? e->touch->output_name : "");
-    const auto widget = getWidgetForMonitor(targetMonitor);
-    if (widget != nullptr && targetMonitor != nullptr)
-        if (widget->isActive())
-            info.cancelled = !widget->buttonEvent(false, g_pInputManager->getMouseCoordsInternal());
 }
 
 void dispatchToggleOverview(std::string arg) {
@@ -459,9 +441,6 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE inHandle) {
 
     g_pMouseButtonHook = HyprlandAPI::registerCallbackDynamic(pHandle, "mouseButton", onMouseButton);
     g_pMouseAxisHook = HyprlandAPI::registerCallbackDynamic(pHandle, "mouseAxis", onMouseAxis);
-
-    g_pTouchDownHook = HyprlandAPI::registerCallbackDynamic(pHandle, "touchDown", onTouchDown);
-    g_pTouchUpHook = HyprlandAPI::registerCallbackDynamic(pHandle, "touchUp", onTouchUp);
 
     g_pSwipeBeginHook = HyprlandAPI::registerCallbackDynamic(pHandle, "swipeBegin", onSwipeBegin);
     g_pSwipeUpdateHook = HyprlandAPI::registerCallbackDynamic(pHandle, "swipeUpdate", onSwipeUpdate);
